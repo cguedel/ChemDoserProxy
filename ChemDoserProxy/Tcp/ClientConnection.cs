@@ -52,10 +52,10 @@ public class ClientConnection
                     DelaySeconds = BitConverter.ToInt16(buffer.AsSpan().GetBytes(30, 2)),
                     FlowRates = new FlowRates
                     {
-                        ChlorPure = buffer[96],
-                        pHMinus = buffer[98],
-                        pHPlus = buffer[100],
-                        FlocPlusC = buffer[102]
+                        ChlorPure = buffer[95],
+                        pHMinus = buffer[97],
+                        pHPlus = buffer[99],
+                        FlocPlusC = buffer[101]
                     }
                 };
 
