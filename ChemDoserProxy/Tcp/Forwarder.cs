@@ -19,7 +19,7 @@ public class Forwarder
 
     public async Task Forward(Memory<byte> data)
     {
-        if (_settings.Value.ForwardHost == null || _settings.Value.ForwardPort == null)
+        if (string.IsNullOrEmpty(_settings.Value.ForwardHost) || _settings.Value.ForwardPort == null)
             return;
 
         using var client = new TcpClient();

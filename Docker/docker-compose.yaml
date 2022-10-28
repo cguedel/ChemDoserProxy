@@ -1,0 +1,25 @@
+﻿version: '3.8'
+
+volumes:
+  state:
+
+services:
+  app:
+    image: ghcr.io/cguedel/chem-doser-proxy
+    restart: unless-stopped
+    ports:
+      - "47524:47524"
+      - "47525:80"
+    environment:
+      DOSER_chemicals__stateFile: /state/state.json
+
+      # following values are capacity of your canisters in milliliters
+      DOSER_chemicals__chlorPureCapacity: 1000
+      DOSER_chemicals__pHMinusCapacity: 1000
+      DOSER_chemicals__pHPlusCapacity: 1000
+      DOSER_chemicals__flocPlusCCapacity: 1000
+
+      DOSER_proxy__forwardHost: pool.aseko.com # set this to empty string to disable forwarding
+      DOSER_proxy__forwardPort: 47524
+    volumes:
+      - state:/state

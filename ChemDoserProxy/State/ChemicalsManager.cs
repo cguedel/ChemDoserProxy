@@ -37,10 +37,10 @@ public class ChemicalsManager
         await Initialize();
         await WriteState(state => chemical switch
         {
-            ChemicalType.ChlorPure => state with { ChlorPure = +amount },
-            ChemicalType.pHMinus => state with { pHMinus = +amount },
-            ChemicalType.pHPlus => state with { pHPlus = +amount },
-            ChemicalType.FlocPlusC => state with { FlocPlusC = +amount },
+            ChemicalType.ChlorPure => state with { ChlorPure = -amount },
+            ChemicalType.pHMinus => state with { pHMinus = -amount },
+            ChemicalType.pHPlus => state with { pHPlus = -amount },
+            ChemicalType.FlocPlusC => state with { FlocPlusC = -amount },
             _ => state
         });
     }

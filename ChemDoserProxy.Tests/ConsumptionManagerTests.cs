@@ -17,7 +17,7 @@ public class ConsumptionManagerTests
         var (manager, settings) = Setup();
         await manager.IncrementAmountConsumed(ChemicalType.ChlorPure, 50);
 
-        manager.State.ChlorPure.Should().Be(50);
+        manager.State.ChlorPure.Should().Be(-50);
 
         var fileInfo = new FileInfo(settings.StateFile);
         fileInfo.Exists.Should().BeTrue();
@@ -25,7 +25,7 @@ public class ConsumptionManagerTests
         await using var fs = fileInfo.OpenRead();
         var fileContents = await JsonSerializer.DeserializeAsync<ChemicalsLevels>(fs);
         fileContents.Should().NotBeNull();
-        fileContents!.ChlorPure.Should().Be(50);
+        fileContents!.ChlorPure.Should().Be(-50);
     }
 
     [Fact]
