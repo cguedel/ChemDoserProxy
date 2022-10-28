@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder();
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false)
     .AddCommandLine(args)
-    .AddEnvironmentVariables("PROXY");
+    .AddEnvironmentVariables("DOSER_");
 
 builder.Services
     .Configure<ProxySettings>(builder.Configuration.GetSection("proxy"))
-    .Configure<ChemicalsSettings>(builder.Configuration.GetSection("state"))
+    .Configure<ChemicalsSettings>(builder.Configuration.GetSection("chemicals"))
 
     .AddHostedService<Listener>()
     .AddHostedService<DataFrameProcessor>()
