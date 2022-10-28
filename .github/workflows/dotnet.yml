@@ -37,6 +37,6 @@ jobs:
       with:
         context: ./
         tags: |
-          ghcr.io/cguedel/ChemDoserProxy:latest
+          ghcr.io/cguedel/chem-doser-proxy:latest
         # build on feature branches, push only on main branch
         push: ${{ github.ref == 'refs/heads/main' }}
