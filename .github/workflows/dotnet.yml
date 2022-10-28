@@ -36,6 +36,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./
+        file: ./ChemDoserProxy/Dockerfile
         tags: |
           ghcr.io/cguedel/chem-doser-proxy:latest
         # build on feature branches, push only on main branch
