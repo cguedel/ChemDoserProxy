@@ -1,7 +1,6 @@
 ﻿using System.Threading.Channels;
 using ChemDoserProxy.Dto;
 using ChemDoserProxy.State;
-using ChemDoserProxy.Tcp;
 
 namespace ChemDoserProxy.Logic;
 
@@ -57,7 +56,7 @@ public class DataFrameProcessor : BackgroundService
                 _pumpLastActive = null;
             }
 
-            _stateManager.Set(frame.clFreeValue / 100m, frame.clFreeMilliVolts, frame.pHValue / 100m,
+            _stateManager.Set(frame.State, frame.clFreeValue / 100m, frame.clFreeMilliVolts, frame.pHValue / 100m,
                 frame.WaterTemperature / 10m);
         }
     }

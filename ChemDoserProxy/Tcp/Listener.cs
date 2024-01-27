@@ -2,8 +2,6 @@
 using System.Net.Sockets;
 using ChemDoserProxy.Configuration;
 using ChemDoserProxy.Logic;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ChemDoserProxy.Tcp;

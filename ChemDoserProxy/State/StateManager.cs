@@ -11,11 +11,11 @@ public class StateManager
         _logger = logger;
     }
 
-    public DoserState State { get; private set; } = new(0, 0, 0, 0);
+    public DoserState State { get; private set; } = new(DeviceState.NoError, 0, 0, 0, 0);
 
-    public void Set(decimal clFree, decimal clFreeMv, decimal pH, decimal waterTemp)
+    public void Set(DeviceState state, decimal clFree, decimal clFreeMv, decimal pH, decimal waterTemp)
     {
-        State = new DoserState(clFree, clFreeMv, pH, waterTemp);
+        State = new DoserState(state, clFree, clFreeMv, pH, waterTemp);
         _logger.LogDebug("State updated to {}", State);
     }
 }
