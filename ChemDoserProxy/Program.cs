@@ -1,8 +1,10 @@
-﻿using ChemDoserProxy.Configuration;
+﻿using System.Text.Json.Serialization;
+using ChemDoserProxy.Configuration;
 using ChemDoserProxy.Dto;
 using ChemDoserProxy.Logic;
 using ChemDoserProxy.State;
 using ChemDoserProxy.Tcp;
+using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -14,6 +16,7 @@ builder.Configuration
 builder.Services
     .Configure<ProxySettings>(builder.Configuration.GetSection("proxy"))
     .Configure<ChemicalsSettings>(builder.Configuration.GetSection("chemicals"))
+    .Configure<JsonOptions>(opts => opts.SerializerOptions.Converters.Add(new JsonStringEnumConverter()))
 
     .AddHostedService<Listener>()
     .AddHostedService<DataFrameProcessor>()
