@@ -2,7 +2,6 @@
 using System.Threading.Channels;
 using ChemDoserProxy.Dto;
 using ChemDoserProxy.Logic;
-using Microsoft.Extensions.Logging;
 
 namespace ChemDoserProxy.Tcp;
 
@@ -43,7 +42,7 @@ public class ClientConnection
                     ReceiveDate = DateTime.UtcNow,
                     Timestamp = new DateTime(2000 + buffer[6], buffer[7], buffer[8],
                         buffer[9], buffer[10], buffer[11]),
-                    Flow = buffer[13] == 0,
+                    State = (DeviceState)buffer[13],
                     pHValue = BitConverter.ToInt16(buffer.AsSpan().GetBytes(14, 2)),
                     clFreeValue = BitConverter.ToInt16(buffer.AsSpan().GetBytes(16, 2)),
                     clFreeMilliVolts = BitConverter.ToInt16(buffer.AsSpan().GetBytes(20, 2)),

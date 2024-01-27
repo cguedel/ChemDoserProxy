@@ -1,6 +1,5 @@
 ﻿using System.Threading.Channels;
 using ChemDoserProxy.Dto;
-using ChemDoserProxy.Tcp;
 
 namespace ChemDoserProxy.Logic;
 

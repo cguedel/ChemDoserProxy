@@ -8,7 +8,7 @@ public class DataFrame
 
     public DateTime ReceiveDate { get; init; }
 
-    public bool Flow { get; init; }
+    public DeviceState State { get; init; }
 
     public int pHValue { get; init; }
 
@@ -27,7 +27,7 @@ public class DataFrame
     public override string ToString()
     {
         return string.Join(Environment.NewLine, $"Serial={Serial}", $"Timestamp={Timestamp}", $"Received={ReceiveDate}",
-            $"Flow={Flow}", $"pH={pHValue}",
+            $"State={State}", $"pH={pHValue}",
             $"clF={clFreeValue}", $"clF(mv)={clFreeMilliVolts}", $"WaterTemp={WaterTemperature}",
             $"ActivePump={ActivePump}", $"Delay={DelaySeconds}s");
     }
@@ -42,4 +42,17 @@ public class FlowRates
     public int pHPlus { get; init; }
 
     public int FlocPlusC { get; init; }
+}
+
+public enum DeviceState
+{
+    NoError = 0,
+    HourDoseExceeded = 1,
+    TimeCorrectionError = 2,
+    NoFlow = 4,
+    EmptyBufferTank = 8,
+    BufferTankOverflow = 16,
+    LowFillingSpeed = 32,
+    NoChangeInpHValue = 64,
+    NoChangeInClValue = 128
 }
