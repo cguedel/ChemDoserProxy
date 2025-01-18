@@ -1,80 +1,59 @@
-﻿using System.Net.Sockets;
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 using ChemDoserProxy.Dto;
 using ChemDoserProxy.Logic;
 
 namespace ChemDoserProxy.Tcp;
 
-public class ClientConnection
+public class ClientConnectionHandler
 {
-    private readonly TcpClient _client;
-    private readonly ILogger<ClientConnection> _logger;
+    private readonly ILogger<ClientConnectionHandler> _logger;
+    private readonly DataFrameParser _parser;
     private readonly Forwarder _forwarder;
-    private readonly NetworkStream _stream;
     private readonly ChannelWriter<DataFrame> _queueWriter;
     private const int BufferSize = 256;
 
-    public ClientConnection(TcpClient client, ILogger<ClientConnection> logger, DataFrameQueue queue, Forwarder forwarder)
+    public ClientConnectionHandler(ILogger<ClientConnectionHandler> logger, DataFrameParser parser, DataFrameQueue queue, Forwarder forwarder)
     {
-        _client = client;
         _logger = logger;
+        _parser = parser;
         _forwarder = forwarder;
-        _stream = client.GetStream();
         _queueWriter = queue.Writer;
     }
 
-    public async Task Receive(CancellationToken ct)
+    public async Task Receive(Stream stream, CancellationToken ct)
     {
         var buffer = new byte[BufferSize];
         try
         {
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                var read = await _stream.ReadAsync(buffer.AsMemory(0, BufferSize), ct).ConfigureAwait(false);
+                var read = await stream.ReadAsync(buffer.AsMemory(0, BufferSize), ct).ConfigureAwait(false);
                 if (read == 0)
                     return;
 
                 await _forwarder.Forward(buffer.AsMemory(0, read));
 
-                var frame = new DataFrame
+                if (!_parser.TryParse(buffer, out var frame))
                 {
-                    Serial = BitConverter.ToInt32(buffer.AsSpan().GetBytes(0, 4)),
-                    ReceiveDate = DateTime.UtcNow,
-                    Timestamp = new DateTime(2000 + buffer[6], buffer[7], buffer[8],
-                        buffer[9], buffer[10], buffer[11]),
-                    State = (DeviceState)buffer[13],
-                    pHValue = BitConverter.ToInt16(buffer.AsSpan().GetBytes(14, 2)),
-                    clFreeValue = BitConverter.ToInt16(buffer.AsSpan().GetBytes(16, 2)),
-                    clFreeMilliVolts = BitConverter.ToInt16(buffer.AsSpan().GetBytes(20, 2)),
-                    WaterTemperature = BitConverter.ToInt16(buffer.AsSpan().GetBytes(25, 2)),
-                    ActivePump = GetPumpTypeFromByte(buffer[29]),
-                    DelaySeconds = BitConverter.ToInt16(buffer.AsSpan().GetBytes(30, 2)),
-                    FlowRates = new FlowRates
-                    {
-                        ChlorPure = buffer[95],
-                        pHMinus = buffer[97],
-                        pHPlus = buffer[99],
-                        FlocPlusC = buffer[101]
-                    }
-                };
+                    _logger.LogWarning("Failed to parse buffer {Buffer} into valid data frame, ignoring data", buffer);
+                    continue;
+                }
 
                 await _queueWriter.WriteAsync(frame, ct);
             }
         }
-        catch (OperationCanceledException)
-        {
-            if (_client.Connected)
-                _stream.Close();
-        }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Unhandled exception when handling connection");
+            _logger.LogError(ex, "Exception while handling connection");
         }
-    }
 
-    private static ChemicalType? GetPumpTypeFromByte(byte value)
-    {
-        var pumpType = (ChemicalType)value;
-        return Enum.IsDefined(pumpType) ? pumpType : null;
+        try
+        {
+            stream.Close();
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
     }
 }

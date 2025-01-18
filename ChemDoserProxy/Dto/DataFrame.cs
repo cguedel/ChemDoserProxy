@@ -4,7 +4,7 @@ public class DataFrame
 {
     public int Serial { get; init; }
 
-    public DateTime Timestamp { get; init; }
+    public DateTime? Timestamp { get; init; }
 
     public DateTime ReceiveDate { get; init; }
 

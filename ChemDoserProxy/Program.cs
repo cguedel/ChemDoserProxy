@@ -21,6 +21,8 @@ builder.Services
     .AddHostedService<Listener>()
     .AddHostedService<DataFrameProcessor>()
 
+    .AddSingleton<ClientConnectionHandler>()
+    .AddSingleton<DataFrameParser>()
     .AddSingleton<DataFrameQueue>()
     .AddSingleton<Forwarder>()
 
