@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using ChemDoserProxy.Configuration;
-using ChemDoserProxy.Logic;
 using Microsoft.Extensions.Options;
 
 namespace ChemDoserProxy.Tcp;
@@ -10,19 +9,16 @@ public class Listener : BackgroundService
 {
     private readonly IOptions<ProxySettings> _proxySettings;
     private readonly ILogger<Listener> _logger;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly DataFrameQueue _queue;
-    private readonly Forwarder _forwarder;
+    private readonly ClientConnectionHandler _connectionHandler;
 
-    public Listener(IOptions<ProxySettings> proxySettings, ILogger<Listener> logger, ILoggerFactory loggerFactory,
-        DataFrameQueue queue,
-        Forwarder forwarder)
+    public Listener(
+        IOptions<ProxySettings> proxySettings,
+        ILogger<Listener> logger,
+        ClientConnectionHandler connectionHandler)
     {
         _proxySettings = proxySettings;
         _logger = logger;
-        _loggerFactory = loggerFactory;
-        _queue = queue;
-        _forwarder = forwarder;
+        _connectionHandler = connectionHandler;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,14 +35,11 @@ public class Listener : BackgroundService
                 _logger.LogInformation("Waiting for connection");
 
                 using var client = await listener.AcceptTcpClientAsync(stoppingToken);
-                _logger.LogInformation("Connected to {}", client.Client.RemoteEndPoint);
+                _logger.LogInformation("Connected to {@Endpoint}", client.Client.RemoteEndPoint);
 
-                var connection = new ClientConnection(client, _loggerFactory.CreateLogger<ClientConnection>(), _queue,
-                    _forwarder);
+                await _connectionHandler.Receive(client.GetStream(), stoppingToken);
 
-                await connection.Receive(stoppingToken);
-
-                _logger.LogInformation("Disconnected from {}", client.Client.RemoteEndPoint);
+                _logger.LogInformation("Disconnected from {@Endpoint}", client.Client.RemoteEndPoint);
             }
         }
         finally
